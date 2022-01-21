@@ -45,7 +45,7 @@
 
 ### 2. Development environment preparation in server end
 
-Please refer to wcs-Java-SDK: https://github.com/Wangsu-Cloud-Storage/wcs-java-sdk
+Please refer to wcs-Java-SDK: https://github.com/CDNetworks-Object-Storage/wcs-java-sdk
 
 #### Initialization
 
