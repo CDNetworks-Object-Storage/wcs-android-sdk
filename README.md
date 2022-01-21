@@ -22,140 +22,127 @@ jar包：[jar](https://github.com/Wangsu-Cloud-Storage/wcs-android-sdk/tree/mast
 
 
 
+# Prerequisites
+- Object Storage is activated.
+- The AccessKey and SecretKey are created
 
 
+# Download SDK
+[Android SDK](https://wcsd.chinanetcenter.com/sdk/cnc-android-sdk-wcs.zip)
 
-### 下载链接
+# How to use it
+## Prepare the development environment
+### 1. Development environment preparation in mobile end
+- Download SDK package
+- Decompress it, and you will get jar packages under libs directory. Currently we have 3 jar: wcs-android-sdk-x.x.x.jar, okhttp-3.x.x.jar and okio-1.x.x.jar
+- Import the 3 jar packages to libs directory in project.
 
-[wcs-android-sdk下载链接](https://wcsd.chinanetcenter.com/sdk/cnc-android-sdk-wcs.zip)
 
-### 移动端场景演示
+#### Eclipse
+![image.png](https://www.wangsu.com/wos/draft/help_doc/en_us/2514/3478/1601277714730_image.png)
 
-1) 移动端向企业自建WEB服务端请求上传凭证 
-2) 企业自建WEB服务端将构建好的上传凭证返回移动端 
-3) 移动端调用网宿云存储平台提供的接口上传文件 
-4) 网宿云存储在检验凭证合法性后，执行移动端请求的接口逻辑，最终返回给移动端处理结果 
+1)If the ADT plugin is above 16, it will automatically put jat to Android Dependencies, and it will also finish the following importing jar packages; if the ADT plugin isn't above 16, please jump to 3).
 
-![img](https://wcs.chinanetcenter.com/indexNew/image/wcs/wcs-android-sdk1.png)
+2)Right click on project, go to Properties;
 
-### 使用指南
+3)Click Java Build Path->Libraries
 
-#### 准备开发环境
+4)Click Add Jars, choose wcs-android-sdk-x.x.x.jar, okhttp-3.x.x.jar and okio-1.x.x.jar under directory libs.
+![image.png](2)
 
-一、移动端开发环境准备 
-- 在官网点击查看下载sdk包
-- 解压后在libs目录下得到jar包，目前包括wcs-android-sdk-x.x.x.jar、okhttp-3.x.x.jar、okio-1.x.x.jar3个jar
-- 将以上3个jar包导入工程的libs目录
 
-Eclipse:
-![复制到项目里libs目录](https://wcs.chinanetcenter.com/indexNew/image/wcs/wcs-android-sdk2.png)
+5)Click OK
 
-1)如果使用的ADT插件是16及以上，则会自动把jar放到Android Dependencies中，并自动完成后续的jar包的导入；如果不是，请继续浏览第3步；
+#### Android Studio
 
-2)右键选择工程，选择Properties； 
+1)Select the 3 jar packages
 
-3)点击Java Build Path->Libraries；
+2)Right click select ***Add As Library***
 
-4)点击Add Jars，选择工程libs目录下的wcs-android-sdk-x.x.x.jar、okhttp-3.x.x.jar、okio-1.x.x.jar； 
+3)Click OK
 
-![移动开发环境准备2](https://wcs.chinanetcenter.com/indexNew/image/wcs/wcs-android-sdk3.png)
+- Configure network permission, AndroidManifest.xml.
 
-5)点击OK。 
 
-Android Studio:
+### 2. Development environment preparation in server end
 
-1)选中3个jar包
+Please refer to wcs-Java-SDK: https://github.com/Wangsu-Cloud-Storage/wcs-java-sdk
 
-2)右键选择Add As Library
+#### Initialization
 
-![移动开发环境准备3](http://doc-pics.w.wcsapi.biz.matocloud.com/sdk/%E7%A7%BB%E5%8A%A8%E7%AB%AF%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-android.png)
+Initialization is mainly to finish upload domain config, client para config (optional), multipart upload concurrency, response timeout, connect timeout, retry times, etc.
 
-3)点击OK。
-
-- 配置网络权限：AndroidManifest.xml添加入<uses-permission android:name="android.permission.INTERNET"/>。
-
-二、服务端开发环境准备 
-
-服务端开发环境请参考wcs-Java-SDK: https://github.com/Wangsu-Cloud-Storage/wcs-java-sdk
-
-#### 初始化
-
-初始化主要完成upload domain设置、Client参数配置（可选）-分片上传并发数、响应超时时间、连接超时时间、重试次数。
-1. 通过配置文件统一设置上传，管理域名
+##### 2.1 Set upload/management domain by config file
 ```
 com.chinanetcenter.wcs.android.Config.java
 
-public static final String PUT_URL = "您的上传域名";
-public static final String MGR_URL = "您的管理域名";
+public static final String PUT_URL = "Your upload domain";
+public static final String MGR_URL = "You management domain";
 ```
 
-2. 在程序中指定
-```java
-    FileUploader.setUploadUrl("您的上传域名");
+##### 2.2 Specify in the program
+```
+    FileUploader.setUploadUrl("Your upload domain");
     
     ClientConfig config = new ClientConfig();
     
-    // 设置分片上传并发数为10，不配置时默认值为5
+    // Set the concurrency of multipart upload ad 10, the default value is 5
     config.setMaxConcurrentRequest(10);
     FileUploader.setClientConfig(config);
 ```
 
-3. 设置表单参数，文件名，mimeType等
+##### 2.3 Set parameters of datasheet
+
 ```
 import com.chinanetcenter.wcs.android.api.ParamsConf;
 
 conf = new ParamsConf();
 
-// 原始文件名称
-conf.fileName = '<原始文件>';
+// Original file name
+conf.fileName = '<Original file>';
 
-// 通过表单参数设置文件保存到云存储的名称
+// Set the file name in WCS by the datasheet
 conf.keyName = <fileKey>;
 
-// 通过表单参数设置文件的mimeType
+// Set the mimeType of file by datasheet
 conf.mimeType = '<mimeType>';
-// 通过表单参数设置文件过期时间
-conf.deadline = '<deadline>';
 FileUploader.setParams(conf);
 ```
-
-#### 自定义块、片的大小
-
-块的大小，默认为4M，必须是4M的倍数，最大不能超过100M。
-片的大小，默认为4M，必须是64K的倍数，最大不能超过块的大小。
-
-```java
-    FileUploader.setBlockConfigs(4, 1024 * 4); //设置块大小为4M，片大小为4M
+####  Customize the size of block and part
+The size of block is 4M as default, it must be a multiple of 4M, and the max value can't be exceed 100M.
+The size of part is 256KB as default, it must be a multiple of 64K, and the max value can't be exceed the size of block.
+```
+  FileUploader.setBlockConfigs(8, 512); //Set block size as 8M, and part size as 512KB.
 ```
 
-#### 文件上传
+#### Upload
 
-<1>表单上传时可开启returnurl进行页面跳转，其他情况下建议不设置returnurl。
+<1> When upload the datasheet, you can enable ***returnurl*** for page jumping, otherwise it is recommended not to set ***returnurl***.
 
-<2>若文件大小超过2M，建议使用分片上传 
+<2> If the file size exceeds 2M, multipart upload is recommended.
 
-<3>云存储提供的上传域名为普通域名，若对上传速度较为敏感，有要求的客户建议采用网宿上传加速服务。
+<3> Cloud Storage provides a default upload domain for upload, if the upload speed is more sensitive, customers with such requirements is suggested to use CDNetworks CDN acceleration service.
 
 
-1.普通上传（POST方式） 
-用户在上传文件后，上传返回结果由云存储平台统一控制，规范统一化。
+##### 1.Normal upload（POST） 
 
-&emsp;&emsp;如果用户指定上传策略数据的returnUrl，网宿云存储将反馈一个指向returnUrl的HTTP 303，驱动客户端执行跳转；
+After the user uploads the file, the returned result is controlled and standardized by cloud storage.
 
-&emsp;&emsp;如果用户没指定上传策略数据的returnUrl，网宿云存储根据returnbody的设定向客户端发送反馈信息。
+- If the user specifies the ***returnUrl*** for uploading policy data, cloud storage will feedback an HTTP 303 to returnUrl, driving the client end to perform the jump;
+- If the user does not specify a ***returnUrl*** for uploading policy data, cloud storage sends feedback to the client end based on the settings of The ReturnBody.
 
-**范例：**
+Example
 
-移动端代码：
+Code in mobile end：
 
-```java
+```
 /**
- * 上传接口范例
+ * Example of upload interface
  */
 private void uploadFile(File srcFile) {
 /**
-         * UPLOADER_TOKEN-上传凭证
-         * srcFile-本地待上传的文件
+         * UPLOADER_TOKEN-local
+         * srcFile-The file which requires to be uploaded from local
          */
         FileUploader.upload(UPLOADER_TOKEN, srcFile, new FileUploaderListener() {
 
@@ -175,31 +162,26 @@ private void uploadFile(File srcFile) {
             }
         });
     }
+
 ```
 
-服务端生成普通上传凭证： [参考上传凭证说明](https://wcs.chinanetcenter.com/document/API/Token/UploadToken)
 
-2.回调上传（POST方式） 
+##### 2.Call back upload（POST）
+After the user uploads the file, user can customize the format of the information returned to the client. Using this upload mode requires enabling the ***callbackUrl*** parameter of the upload policy data, and the ***callbackBody ***parameter is optional (it is recommended). Note: ***returnUrl*** and ***callbackUrl*** cannot be specified together.
 
-用户上传文件后，对返回给客户端的信息进行自定义格式。 
-使用该上传模式需要启用上传策略数据的callbackUrl参数,而callbackBody参数可选（建议使用该参数）。 
-*注意：returnUrl和callbackUrl不能同时指定。*
+If a ***callbackBody*** parameter is specified, cloud storage will receive it and initiates an HTTP request to callback to server at the address specified in the callbackUrl, sending data to server. The content of the data sent is specified by the ***callbackBody***. After the server completes the callback processing, it can put the data in the HTTP Response, and cloud storage will respond to the client and send the data fed back by server to the client. If the callbackBody parameter is not specified, cloud storage returns an empty string to the client.
 
-&emsp;&emsp;如果指定了callbackBody参数，云存储将接收此参数，并向callbackUrl指定的地址发起一个HTTP请求回调业务服务器，同时向业务服务器发送数据。发送的数据内容由callbackBody指定。业务服务器完成回调的处理后，可以在HTTP Response中放入数据，网宿云存储会响应客户端，并将业务服务器反馈的数据发送给客户端。
-如果不指定callbackBody参数，云存储将返回空串给客户端。
+Example
 
-**范例：**
-
-移动端代码：
-
-```java
+Code in mobile end:
+```
  /**
-     * 上传接口范例
+     * example of upload interface
      */
 private void uploadFile(File srcFile) {
 /**
-         * UPLOADER_TOKEN-上传凭证
-         * srcFile-本地待上传的文件
+         * UPLOADER_TOKEN-token
+         * srcFile-The file which requires to be uploaded from local
          */
         FileUploader.upload(UPLOADER_TOKEN, srcFile, new FileUploaderListener() {
 
@@ -220,27 +202,24 @@ private void uploadFile(File srcFile) {
         });
 
     }
+
 ```
 
-服务端生成回调上传凭证： [参考上传凭证说明](https://wcs.chinanetcenter.com/document/API/Token/UploadToken)
+##### 3.Upload with notification (POST)
 
-3.通知上传 (POST方式) 
+At the same time the user uploates the file, it will submit the file processing instruction, requesting cloud storage to process the uploaded file. Due to the time-consuming processing operation, in order not to affect the experience of the client, cloud storage adopts the asynchronous processing strategy, and automatically informs the client service side of the result after the processing is completed. Using this upload pattern requires the ***persistentOps*** parameter and the ***persistentNotifyUrl*** parameter to be enabled for the upload policy data.
 
-用户在上传文件的同时，提交文件处理指令，请求网宿云存储平台对上传的文件进行处理。由于处理操作较耗时，为了不影响客户端的体验，网宿云存储平台采用异步处理策略，处理完成后将结果自动通知客户服务端。 
-使用该上传模式需要启用上传策略数据的persistentOps参数和persistentNotifyUrl参数。
+Example
 
-**范例：**
-
-移动端代码：
-
-```java
+Code in mobile end
+```
 /**
-     * 上传接口范例
+     * example of upload interface
      */
 private void uploadFile(File srcFile) {
 /**
-         * UPLOADER_TOKEN-上传凭证
-         * srcFile-本地待上传的文件
+         * UPLOADER_TOKEN-token
+         * srcFile-The file which requires to be uploaded from local
          */
         FileUploader.upload(UPLOADER_TOKEN, srcFile, new FileUploaderListener() {
 
@@ -261,58 +240,63 @@ private void uploadFile(File srcFile) {
         });
 
     }
+
 ```
 
-服务端生成通知上传凭证： [参考上传凭证说明](https://wcs.chinanetcenter.com/document/API/Token/UploadToken)
 
-4.分片上传（POST方式） 
 
-移动端上传大文件需要耗费较长时间，一旦在传输过程中出现异常，文件内容需全部重传，影响用户体验，为避免这个问题，引进分片上传机制。 
+##### 4.Multipart upload（POST）
 
-分片上传机制是将一个大文件切分成多个自定义大小的块，然后将这些块并行上传，如果某个块上传失败，客户端只需要重新上传这个块即可。 
 
-*注意：每个块的最大大小不能超过100M；最小不能小于4M，否则将会采用默认4M去切分。*
+It takes a long time to upload large files on the mobile end. Once abnormalities occur in the transmission process, all file contents need to be retransmitted, which will affect the user experience. To avoid this problem, multipart upload mechanism is introduced.
 
-**范例**
+Multipart upload mechanism is to slice a large file into many custom sized blocks, and then upload these blocks in parallel. If a block upload fails, the client just needs to re-upload the block.
 
-移动端代码：
+Note: The maximum size of each block should not exceed 100M; It must not be less than 4M, otherwise the default value will be set as 4M.
 
-```java
+Example
+
+Code in mobile end
+```
 private static final long DEFAULT_BLOCK_SIZE = 1 * 1024 * 1024;
 /**
-* context-应用当前的上下文
-* uploadToken-上传Token
-* ipaFile-需要上传的文件
-* DEFAULT_BLOCK_SIZE-块大小
+* context
+* uploadToken-Token
+* ipaFile-the file requires to be uploaded
+* DEFAULT_BLOCK_SIZE-block size
 */
 FileUploader.sliceUpload(context, uploadToken, ipaFile, DEFAULT_BLOCK_SIZE, new SliceUploaderListener() {
           @Override
           public void onSliceUploadSucceed(JSONObject jsonObject) {
-            Log.d("CNCLog", "slice upload succeeded.");
-          }
+Log.d("CNCLog", "slice upload succeeded.");
+}
 
-          @Override
-          public void onSliceUploadFailured(OperationMessage operationMessage) {
-            Log.d("CNCLog", "slice upload failured.");
-          }
+@Override
+public void onSliceUploadFailured(OperationMessage operationMessage) {
+Log.d("CNCLog", "slice upload failured.");
+}
 
-          @Override
-          public void onProgress(long uploaded, long total) {
-            Log.d("CNCLog", String.format(Locale.CHINA, "uploaded : %s, total : %s", uploaded, total));
-          }
+@Override
+public void onProgress(long uploaded, long total) {
+Log.d("CNCLog", String.format(Locale.CHINA, "uploaded : %s, total : %s", uploaded, total));
+}
 });
+
 ```
 
-服务端生成分片上传凭证： [参考上传凭证说明](https://wcs.chinanetcenter.com/document/API/Token/UploadToken)
 
-#### 文件完整性校验
-如果需要校验上传成功的文件是否完整，可在客户端计算文件hash，并和上传成功后云存储返回的hash进行对比，如果hash一致，则表明文件是完整的。
+####  Integrity checker 
 
-*注意：文件hash值的计算比较消耗资源，请谨慎使用*
+If the integrity of the successfully uploaded file needs to be verified, the file hash can be calculated on the client side and compared with the hash returned by cloud storage after the successful upload. If the hash is consistent, it indicates that the file is complete.
 
-**范例**
+Note: Calculations of file hash values consume resources, so use it with caution
+
+
+Example
 ```
 import com.chinanetcenter.wcs.android.utils.WetagUtil;
 
 WetagUtil.getEtagHash(file);
+
+```
 ```
