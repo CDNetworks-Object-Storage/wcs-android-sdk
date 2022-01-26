@@ -13,12 +13,12 @@
 ## Prepare the development environment
 ### 1. Development environment preparation in mobile end
 - Download SDK package
-- Decompress it, and you will get jar packages under libs directory. Currently we have 3 jar: wcs-android-sdk-x.x.x.jar, okhttp-3.x.x.jar and okio-1.x.x.jar
+- Decompress it, and you will get jar packages under libs directory. Currently we have 3 jars: wcs-android-sdk-x.x.x.jar, okhttp-3.x.x.jar and okio-1.x.x.jar
 - Import the 3 jar packages to libs directory in project.
 
 
-#### Eclipse
-![image.png](https://www.wangsu.com/wos/draft/help_doc/en_us/2514/3478/1601277714730_image.png)
+#### For Eclipse
+![image](https://user-images.githubusercontent.com/98135632/151097790-940f688d-1258-48fe-b8b4-a791578c4434.png)
 
 1)If the ADT plugin is above 16, it will automatically put jat to Android Dependencies, and it will also finish the following importing jar packages; if the ADT plugin isn't above 16, please jump to 3).
 
@@ -27,12 +27,12 @@
 3)Click Java Build Path->Libraries
 
 4)Click Add Jars, choose wcs-android-sdk-x.x.x.jar, okhttp-3.x.x.jar and okio-1.x.x.jar under directory libs.
-![image.png](2)
+![image](https://user-images.githubusercontent.com/98135632/151097833-9326522b-695b-4dae-84ee-6ec091e71917.png)
 
 
 5)Click OK
 
-#### Android Studio
+#### For Android Studio
 
 1)Select the 3 jar packages
 
@@ -80,11 +80,14 @@ conf = new ParamsConf();
 // Original file name
 conf.fileName = '<Original file>';
 
-// Set the file name in WCS by the datasheet
+// Set the file name in WCS
 conf.keyName = <fileKey>;
 
-// Set the mimeType of file by datasheet
+// Set the mimeType of file
 conf.mimeType = '<mimeType>';
+
+// Set DDL of file
+conf.deadline = '<deadline>';
 FileUploader.setParams(conf);
 ```
 ####  Customize the size of block and part
@@ -96,7 +99,7 @@ The size of part is 256KB as default, it must be a multiple of 64K, and the max 
 
 #### Upload
 
-<1> When upload the datasheet, you can enable ***returnurl*** for page jumping, otherwise it is recommended not to set ***returnurl***.
+<1> When uploading the datasheet, you can enable ***returnurl*** for page jumping, otherwise it is recommended not to set ***returnurl***.
 
 <2> If the file size exceeds 2M, multipart upload is recommended.
 
@@ -107,10 +110,10 @@ The size of part is 256KB as default, it must be a multiple of 64K, and the max 
 
 After the user uploads the file, the returned result is controlled and standardized by cloud storage.
 
-- If the user specifies the ***returnUrl*** for uploading policy data, cloud storage will feedback an HTTP 303 to returnUrl, driving the client end to perform the jump;
-- If the user does not specify a ***returnUrl*** for uploading policy data, cloud storage sends feedback to the client end based on the settings of The ReturnBody.
+- If the user specifies the ***returnUrl*** for uploading policy data, cloud storage will feedback an ***HTTP 303*** to ***returnUrl***, driving the client end to perform the jump;
+- If the user does not specify a ***returnUrl*** for uploading policy data, cloud storage sends feedback to the client end based on the settings of The ***ReturnBody***.
 
-Example
+###### Example
 
 Code in mobile end：
 
@@ -146,11 +149,12 @@ private void uploadFile(File srcFile) {
 
 
 ##### 2.Call back upload（POST）
-After the user uploads the file, user can customize the format of the information returned to the client. Using this upload mode requires enabling the ***callbackUrl*** parameter of the upload policy data, and the ***callbackBody ***parameter is optional (it is recommended). Note: ***returnUrl*** and ***callbackUrl*** cannot be specified together.
+After the user uploads the file, user can customize the format of the information returned to the client. Using this upload mode requires enabling the ***callbackUrl*** parameter of the upload policy data, and the ***callbackBody*** parameter is optional (it is recommended). Note: ***returnUrl*** and ***callbackUrl*** cannot be specified together.
 
-If a ***callbackBody*** parameter is specified, cloud storage will receive it and initiates an HTTP request to callback to server at the address specified in the callbackUrl, sending data to server. The content of the data sent is specified by the ***callbackBody***. After the server completes the callback processing, it can put the data in the HTTP Response, and cloud storage will respond to the client and send the data fed back by server to the client. If the callbackBody parameter is not specified, cloud storage returns an empty string to the client.
+- If a ***callbackBody*** parameter is specified, cloud storage will receive it and initiates an HTTP request to callback to server at the address specified in the ***callbackUrl***, sending data to server. The content of the data sent is specified by the ***callbackBody***. After the server completes the callback processing, it can put the data in the HTTP Response, and cloud storage will respond to the client and send the data fed back by server to the client. 
+- If the ***callbackBody*** parameter is not specified, cloud storage returns an empty string to the client.
 
-Example
+###### Example
 
 Code in mobile end:
 ```
@@ -188,7 +192,7 @@ private void uploadFile(File srcFile) {
 
 At the same time the user uploates the file, it will submit the file processing instruction, requesting cloud storage to process the uploaded file. Due to the time-consuming processing operation, in order not to affect the experience of the client, cloud storage adopts the asynchronous processing strategy, and automatically informs the client service side of the result after the processing is completed. Using this upload pattern requires the ***persistentOps*** parameter and the ***persistentNotifyUrl*** parameter to be enabled for the upload policy data.
 
-Example
+###### Example
 
 Code in mobile end
 ```
@@ -233,7 +237,7 @@ Multipart upload mechanism is to slice a large file into many custom sized block
 
 Note: The maximum size of each block should not exceed 100M; It must not be less than 4M, otherwise the default value will be set as 4M.
 
-Example
+###### Example
 
 Code in mobile end
 ```
@@ -271,7 +275,7 @@ If the integrity of the successfully uploaded file needs to be verified, the fil
 Note: Calculations of file hash values consume resources, so use it with caution
 
 
-Example
+###### Example
 ```
 import com.chinanetcenter.wcs.android.utils.WetagUtil;
 
